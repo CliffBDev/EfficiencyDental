@@ -1,8 +1,8 @@
 namespace EfficiencyDental.Domain.Entities;
 
-public class Practice
+public class Room
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public IList<Office> Offices { get; set; }
+    public int OfficeId { get; set; }
 }
