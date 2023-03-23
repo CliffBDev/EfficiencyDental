@@ -23,4 +23,20 @@
       <ProjectReference Include="..\EfficiencyDental.Infrastructure\EfficiencyDental.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Middlewear\Tenants\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="Middlewear\Tenants\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Middlewear\Tenants\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="Middlewear\Tenants\**" />
+    </ItemGroup>
+
 </Project>

@@ -11,7 +11,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Business" />
       <Folder Include="Common\Connectors\Repositories" />
     </ItemGroup>
 

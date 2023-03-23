@@ -1,17 +1,18 @@
+using EfficiencyDental.Application.Business.Tenant;
 using EfficiencyDental.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Configuration;
 
 namespace EfficiencyDental.Infrastructure.Persistence.Contexts;
 
 public class ApplicationContext : DbContext, IApplicationDbContext
 {
-
-    public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
+    public ApplicationContext(DbContextOptions<ApplicationContext> options, IConfiguration configuration, ITenantService tenantService) : base(options)
     {
         
     }
-    
+
     public DbSet<Practice> Practices { get; set; }
     public DbSet<Office> Offices { get; set; }
     public DbSet<Room> Rooms { get; set; }
@@ -32,7 +33,7 @@ public class ApplicationContext : DbContext, IApplicationDbContext
             return base.Database;
         }
     }
-
+    
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
         return await base.SaveChangesAsync(cancellationToken);

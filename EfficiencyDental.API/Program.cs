@@ -1,3 +1,6 @@
+
+using EfficiencyDental.API.Middlewear;
+using EfficiencyDental.Application.Business.Tenant;
 using EfficiencyDental.Infrastructure.Persistence.Contexts;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,12 +14,25 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<ITenantService, TenantService>();
+builder.Services.AddScoped<MultitenantMiddlewear>();
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
+//Multitenancy is currently being config driven, but in the long run it is 
+//certainly more scalable to have it be database driven. 
+//But for now this will work just fine. 
+
+var connectionStringNames = builder.Configuration.GetSection("ConnectionStringNames").Get<string[]>();
+
+foreach (var tenant in connectionStringNames)
 {
-    var initalizer = scope.ServiceProvider.GetRequiredService<ApplicationContextInitializer>();
-    await initalizer.MigrateAsync();
+    using (var scope = app.Services.CreateScope())
+    {
+        var tenantService = scope.ServiceProvider.GetRequiredService<ITenantService>();
+        tenantService.SetTenant(tenant);
+        var initalizer = scope.ServiceProvider.GetRequiredService<ApplicationContextInitializer>();
+        await initalizer.MigrateAsync();
+    }    
 }
 
 // Configure the HTTP request pipeline.
