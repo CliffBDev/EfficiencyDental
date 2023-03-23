@@ -8,14 +8,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddInfraServices(builder.Configuration);
-
+builder.Services.AddScoped<ITenantService, TenantService>();
+builder.Services.AddScoped<MultitenantMiddleware>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<ITenantService, TenantService>();
-builder.Services.AddScoped<MultitenantMiddleware>();
+
 var app = builder.Build();
 
 //Multitenancy is currently being config driven, but in the long run it is ->
@@ -38,13 +38,18 @@ foreach (var tenant in connectionStringNames)
 }
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+app.UseCors(x => x
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<MultitenantMiddleware>();
 
 app.UseAuthorization();
 
