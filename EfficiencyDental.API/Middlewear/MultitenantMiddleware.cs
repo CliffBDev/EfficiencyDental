@@ -1,12 +1,12 @@
 
 using EfficiencyDental.Application.Business.Tenant;
 
-namespace EfficiencyDental.API.Middlewear;
+namespace EfficiencyDental.API.Middleware;
 
-public class MultitenantMiddlewear : IMiddleware
+public class MultitenantMiddleware : IMiddleware
 {
     private ITenantService _tenantService;
-    public MultitenantMiddlewear(ITenantService tenantService)
+    public MultitenantMiddleware(ITenantService tenantService)
     {
         _tenantService = tenantService;
     }
@@ -16,8 +16,9 @@ public class MultitenantMiddlewear : IMiddleware
         if (context.Request.Query.TryGetValue("tenant", out var values))
         {
             _tenantService.SetTenant(values.First());
+            await next(context);
         }
 
-        await next(context);
+        throw new Exception("Tenant must be passed in query");
     }
 }

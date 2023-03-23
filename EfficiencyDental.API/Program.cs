@@ -1,5 +1,5 @@
 
-using EfficiencyDental.API.Middlewear;
+using EfficiencyDental.API.Middleware;
 using EfficiencyDental.Application.Business.Tenant;
 using EfficiencyDental.Infrastructure.Persistence.Contexts;
 
@@ -15,24 +15,26 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<ITenantService, TenantService>();
-builder.Services.AddScoped<MultitenantMiddlewear>();
+builder.Services.AddScoped<MultitenantMiddleware>();
 var app = builder.Build();
 
-//Multitenancy is currently being config driven, but in the long run it is 
-//certainly more scalable to have it be database driven. 
+//Multitenancy is currently being config driven, but in the long run it is ->
+//certainly more scalable to have it be database driven. ->
 //But for now this will work just fine. 
+//Or we may be able to have the migrations built into the release pipeline that way we are ->
+//not doing them at startup and possibly timing out there. Not sure which one is correct/best yet.
 
 var connectionStringNames = builder.Configuration.GetSection("ConnectionStringNames").Get<string[]>();
+if (connectionStringNames is null)
+    throw new Exception("Connection string names cannot be null");
 
 foreach (var tenant in connectionStringNames)
 {
-    using (var scope = app.Services.CreateScope())
-    {
-        var tenantService = scope.ServiceProvider.GetRequiredService<ITenantService>();
-        tenantService.SetTenant(tenant);
-        var initalizer = scope.ServiceProvider.GetRequiredService<ApplicationContextInitializer>();
-        await initalizer.MigrateAsync();
-    }    
+    using var scope = app.Services.CreateScope();
+    var tenantService = scope.ServiceProvider.GetRequiredService<ITenantService>();
+    tenantService.SetTenant(tenant);
+    var initializer = scope.ServiceProvider.GetRequiredService<ApplicationContextInitializer>();
+    await initializer.MigrateAsync();
 }
 
 // Configure the HTTP request pipeline.
